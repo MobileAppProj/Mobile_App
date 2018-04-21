@@ -2,7 +2,7 @@ var http = require('http');
 var express = require('express');
 var bodyParser = require('body-parser');
 var base64Img = require('base64-img');
-var mysql = require('mysql')
+var mysql = require('mysql');
 
 var port = 8585;
 var app = express();
@@ -31,6 +31,16 @@ var connection = mysql.createConnection({
 });
 
 connection.connect();
+
+var food = 'sandwich';
+console.log("Successful connect to Database");
+var query  = 'SELECT * FROM canguan.restaurants WHERE contents LIKE \'%' + food + '%\';'
+console.log(query);
+
+connection.query(query, function (error, results, field) {
+    if (error) throw error;
+    console.log(results);
+});
 
 app.use(bodyParser.json({limit: '1mb'}));
 app.use(bodyParser.urlencoded({
@@ -66,6 +76,7 @@ app.post('/photo', function (req, res) {
             }
             res.send(JSON.stringify(response));
         },
+        // Error throw
         function(err) {
             console.error(err);
             res.send(JSON.stringify(err));
