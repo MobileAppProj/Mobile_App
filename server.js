@@ -31,16 +31,17 @@ var connection = mysql.createConnection({
 });
 
 connection.connect();
-
-var food = 'sandwich';
 console.log("Successful connect to Database");
-var query  = 'SELECT * FROM canguan.restaurants WHERE contents LIKE \'%' + food + '%\';'
-console.log(query);
 
+
+var query  = 'SELECT * FROM canguan.restaurants WHERE contents LIKE \'%sandwich%\';';
 connection.query(query, function (error, results, field) {
     if (error) throw error;
-    console.log(results);
+    var out = {'out' : results[0]};
+    console.log(JSON.stringify(out));
+    console.log(typeof(out));
 });
+
 
 app.use(bodyParser.json({limit: '1mb'}));
 app.use(bodyParser.urlencoded({
@@ -53,11 +54,15 @@ var json = JSON.parse(text);
 var image = base64Img.base64Sync('/Users/xiaochen/Desktop/Course/49788 Mobile Apps/team/Mobile_App/test.jpg');
 var degital = image.split(',')[1].toString();
 
+var json_out = '{\"foods\":{';
+
 // Need to extend
 app.post('/photo', function (req, res) {
     // Use for latter test
     // image = req.photo;
     // degital = base64Img.base64Sync(image).split(',')[1].toString();
+
+    // image = req.body.base64;
 
     res.setHeader('Content-Type', 'application/json');
     console.log("There is a new request");
@@ -69,13 +74,27 @@ app.post('/photo', function (req, res) {
                 var accuracy = foods[i].value;
                 if (accuracy < 0.9) continue;
 
-                /* Implement Query Part here
-                *  Once Get Food name, query in DB to get more information
-                */
+                var query  = 'SELECT * FROM canguan.restaurants WHERE contents LIKE \'%' + name + '%\';';
+
+                connection.query(query, function (error, results, field) {
+                    if (error) throw error;
+
+                    if (results.length != 0) {
+                        json_out = json_out + '\"' + name + '\":[';
+                        for (var i = 0; i < results.length; i++) {
+                            // json_out = json_out + "{" + '\"' +
+                        }
+
+                    }
+                    console.log(results.length);
+                });
+
                 console.log(name);
             }
             res.send(JSON.stringify(response));
         },
+
+
         // Error throw
         function(err) {
             console.error(err);
