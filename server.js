@@ -27,7 +27,7 @@ app.use(bodyParser.urlencoded({
 }));
 
 var text = '{ "code": 0, "err": " ","data": {"Apple": "information", "Orange": "information"}, "string": "Hello World"}';
-var json = JSON.parse(text)
+var json = JSON.parse(text);
 
 var image = base64Img.base64Sync('/Users/xiaochen/Desktop/Course/49788 Mobile Apps/team/Mobile_App/test.jpg');
 var degital = image.split(',')[1].toString();
