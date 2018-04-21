@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/chenx376/Mobile_App#readme",
   "dependencies": {
+    "base64-img": "^1.0.4",
     "clarifai": "^2.7.0",
     "express": "^4.16.3"
   }
