@@ -2,6 +2,7 @@ var http = require('http');
 var express = require('express');
 var bodyParser = require('body-parser');
 var base64Img = require('base64-img');
+var mysql = require('mysql')
 
 var port = 8585;
 var app = express();
@@ -20,6 +21,16 @@ app.use(function(req, res, next) {
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
   next();
 });
+
+//Mysql Connection
+var connection = mysql.createConnection({
+    host : 'mysql.chugopmntol2.us-east-1.rds.amazonaws.com',
+    user : 'root',
+    password : '1993714cx',
+    database : 'canguan'
+});
+
+connection.connect();
 
 app.use(bodyParser.json({limit: '1mb'}));
 app.use(bodyParser.urlencoded({
