@@ -1,14 +1,14 @@
-var http = require('http');
-var express = require('express');
-var bodyParser = require('body-parser');
-var base64Img = require('base64-img');
-var mysql = require('mysql');
+let http = require('http');
+let express = require('express');
+let bodyParser = require('body-parser');
+let base64Img = require('base64-img');
+let mysql = require('mysql');
 
-var port = 8585;
-var app = express();
+let port = 8585;
+let app = express();
 
 // Clarifai API Related
-var server = http.createServer(app);
+let server = http.createServer(app);
 const Clarifai = require('clarifai');
 const faiApp = new Clarifai.App({
        apiKey: 'fdf54109d2704294a5861bd7387bfbdf'
@@ -23,7 +23,7 @@ app.use(function(req, res, next) {
 });
 
 //Mysql Connection
-var connection = mysql.createConnection({
+let connection = mysql.createConnection({
     host : 'mysql.chugopmntol2.us-east-1.rds.amazonaws.com',
     user : 'root',
     password : '1993714cx',
@@ -33,28 +33,16 @@ var connection = mysql.createConnection({
 connection.connect();
 console.log("Successful connect to Database");
 
-
-var query  = 'SELECT * FROM canguan.restaurants WHERE contents LIKE \'%sandwich%\';';
-connection.query(query, function (error, results, field) {
-    if (error) throw error;
-    var out = {'out' : results[0]};
-    console.log(JSON.stringify(out));
-    console.log(typeof(out));
-});
-
-
-app.use(bodyParser.json({limit: '1mb'}));
+// app.use(bodyParser.json({limit: '1mb'}));
 app.use(bodyParser.urlencoded({
     extended: true
 }));
 
-var text = '{ "code": 0, "err": " ","data": {"Apple": "information", "Orange": "information"}, "string": "Hello World"}';
-var json = JSON.parse(text);
+let text = '{ "code": 0, "err": " ","data": {"Apple": "information", "Orange": "information"}, "string": "Hello World"}';
+let json = JSON.parse(text);
 
-var image = base64Img.base64Sync('/Users/xiaochen/Desktop/Course/49788 Mobile Apps/team/Mobile_App/test.jpg');
-var degital = image.split(',')[1].toString();
-
-var json_out = '{\"foods\":{';
+let image = base64Img.base64Sync('/Users/xiaochen/Desktop/Course/49788 Mobile Apps/team/Mobile_App/test.jpg');
+let degital = image.split(',')[1].toString();
 
 // Need to extend
 app.post('/photo', function (req, res) {
@@ -63,47 +51,60 @@ app.post('/photo', function (req, res) {
     // degital = base64Img.base64Sync(image).split(',')[1].toString();
 
     // image = req.body.base64;
+    console.log(req.body);
 
     res.setHeader('Content-Type', 'application/json');
     console.log("There is a new request");
+
     faiApp.models.predict(Clarifai.GENERAL_MODEL, {base64: degital}).then(
         function(response) {
-            var foods = response.outputs[0].data.concepts;
-            for (var i = 0; i < foods.length; i++) {
-                var name = foods[i].name;
-                var accuracy = foods[i].value;
-                if (accuracy < 0.9) continue;
+            let foods = response.outputs[0].data.concepts;
 
-                var query  = 'SELECT * FROM canguan.restaurants WHERE contents LIKE \'%' + name + '%\';';
-
-                connection.query(query, function (error, results, field) {
-                    if (error) throw error;
-
-                    if (results.length != 0) {
-                        json_out = json_out + '\"' + name + '\":[';
-                        for (var i = 0; i < results.length; i++) {
-                            // json_out = json_out + "{" + '\"' +
-                        }
-
-                    }
-                    console.log(results.length);
-                });
-
-                console.log(name);
+            let query = 'SELECT * FROM canguan.restaurants WHERE false';
+            for (let i = 0; i < foods.length; i++) {
+                if (foods[i].value < 0.9) continue;
+                query = query + ' or contents LIKE \'%' + foods[i].name + '%\'';
             }
-            res.send(JSON.stringify(response));
-        },
+            query = query + ";";
 
+            connection.query(query, function (error, results, field) {
+                res.send(JSON.stringify(results));
+            });
+
+            // for (let i = 0; i < foods.length; i++) {
+        //
+        //     let list = [];
+        //     let name = foods[i].name;
+        //     let accuracy = foods[i].value;
+        //     if (accuracy < 0.9) continue;
+        //     let query  = 'SELECT * FROM canguan.restaurants WHERE contents LIKE \'%' + name + '%\';';
+        //
+        //     connection.query(query, function (error, results, field) {
+        //
+        //         if (error) throw error;
+        //         for (let i = 0; i < results.length; i++) {
+        //             if (results[i].length != 0) {
+        //                 list.push(results[i].RowDataPacket);
+        //             }
+        //         }
+        //     });
+        //
+        //     if (list.length != 0) {
+        //         let food = {name : list};
+        //         list_allfood.push(food);
+        //     }
+        // }
+        // let output = {foods : list_allfoods};
+        //
+        // res.send(JSON.stringify(output));
+    },
 
         // Error throw
         function(err) {
             console.error(err);
             res.send(JSON.stringify(err));
-        }
-    );
-    // Send Back
+        });
 
-    res.send(json);
 });
 
 server.listen(port);
