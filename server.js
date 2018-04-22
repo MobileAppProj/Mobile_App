@@ -3,6 +3,7 @@ let express = require('express');
 let bodyParser = require('body-parser');
 let base64Img = require('base64-img');
 let mysql = require('mysql');
+let formidable = require('formidable');
 
 let port = 8585;
 let app = express();
@@ -33,44 +34,44 @@ let connection = mysql.createConnection({
 connection.connect();
 console.log("Successful connect to Database");
 
-// app.use(bodyParser.json({limit: '1mb'}));
-app.use(bodyParser.urlencoded({
-    extended: true
-}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
+app.use(bodyParser.json({limit: '50mb'}));
 
-let text = '{ "code": 0, "err": " ","data": {"Apple": "information", "Orange": "information"}, "string": "Hello World"}';
-let json = JSON.parse(text);
+// let text = '{ "code": 0, "err": " ","data": {"Apple": "information", "Orange": "information"}, "string": "Hello World"}';
+// let json = JSON.parse(text);
+//
+// let image = base64Img.base64Sync('/Users/xiaochen/Desktop/Course/49788 Mobile Apps/team/Mobile_App/test.jpg');
+// let degital = image.split(',')[1].toString();
+// degital = base64Img.base64Sync(image).split(',')[1].toString();
+// console.log(degital);
 
-let image = base64Img.base64Sync('/Users/xiaochen/Desktop/Course/49788 Mobile Apps/team/Mobile_App/test.jpg');
-let degital = image.split(',')[1].toString();
-
-// Need to extend
 app.post('/photo', function (req, res) {
     // Use for latter test
     // image = req.photo;
-    // degital = base64Img.base64Sync(image).split(',')[1].toString();
 
-    // image = req.body.base64;
-    console.log(req.body);
+    let degital = Object.keys(req.body)[0];
+    degital = degital.split(' ').join('+');
 
+    // console.log(degital);
+    // console.log(degital);
     res.setHeader('Content-Type', 'application/json');
     console.log("There is a new request");
 
     faiApp.models.predict(Clarifai.GENERAL_MODEL, {base64: degital}).then(
         function(response) {
             let foods = response.outputs[0].data.concepts;
+            let query = 'SELECT * FROM canguan.restaurants WHERE contents LIKE \'%' + foods[0].name + '%\'';
 
-            let query = 'SELECT * FROM canguan.restaurants WHERE false';
-            for (let i = 0; i < foods.length; i++) {
+            for (let i = 1; i < foods.length; i++) {
                 if (foods[i].value < 0.9) continue;
                 query = query + ' or contents LIKE \'%' + foods[i].name + '%\'';
             }
             query = query + ";";
 
             connection.query(query, function (error, results, field) {
+                console.log(results);
                 res.send(JSON.stringify(results));
             });
-
             // for (let i = 0; i < foods.length; i++) {
         //
         //     let list = [];
@@ -101,7 +102,7 @@ app.post('/photo', function (req, res) {
 
         // Error throw
         function(err) {
-            console.error(err);
+            // console.error(err);
             res.send(JSON.stringify(err));
         });
 
