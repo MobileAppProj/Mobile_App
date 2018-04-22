@@ -25,7 +25,7 @@ app.use(function(req, res, next) {
 
 //Mysql Connection
 let connection = mysql.createConnection({
-    host : 'mysql.chugopmntol2.us-east-1.rds.amazonaws.com',
+    host : 'canting.chugopmntol2.us-east-1.rds.amazonaws.com',
     user : 'root',
     password : '1993714cx',
     database : 'canguan'
@@ -34,8 +34,8 @@ let connection = mysql.createConnection({
 connection.connect();
 console.log("Successful connect to Database");
 
-app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 
 // let text = '{ "code": 0, "err": " ","data": {"Apple": "information", "Orange": "information"}, "string": "Hello World"}';
 // let json = JSON.parse(text);
@@ -48,14 +48,12 @@ app.use(bodyParser.json({limit: '50mb'}));
 app.post('/photo', function (req, res) {
     // Use for latter test
     // image = req.photo;
-
+    console.log("There is a new request");
     let degital = Object.keys(req.body)[0];
     degital = degital.split(' ').join('+');
 
     // console.log(degital);
-    // console.log(degital);
     res.setHeader('Content-Type', 'application/json');
-    console.log("There is a new request");
 
     faiApp.models.predict(Clarifai.GENERAL_MODEL, {base64: degital}).then(
         function(response) {
@@ -67,8 +65,10 @@ app.post('/photo', function (req, res) {
                 query = query + ' or contents LIKE \'%' + foods[i].name + '%\'';
             }
             query = query + ";";
+            console.log(query);
 
             connection.query(query, function (error, results, field) {
+                if (error) throw error;
                 console.log(results);
                 res.send(JSON.stringify(results));
             });
@@ -99,10 +99,9 @@ app.post('/photo', function (req, res) {
         //
         // res.send(JSON.stringify(output));
     },
-
         // Error throw
         function(err) {
-            // console.error(err);
+            console.error(err);
             res.send(JSON.stringify(err));
         });
 
