@@ -39,7 +39,7 @@ app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 
 app.post('/photo', function (req, res) {
 
-    console.log("There is a new request");
+    console.log("There is a new request for photo");
     let degital = Object.keys(req.body)[0];
     degital = degital.split(' ').join('+');
     res.setHeader('Content-Type', 'application/json');
@@ -65,6 +65,31 @@ app.post('/photo', function (req, res) {
         // Error throw
         function(err) {
             console.error(err);
+            res.send(JSON.stringify(err));
+        });
+});
+
+app.post('/shopping', function (req, res) {
+
+    console.log("There is a new request for shopping list");
+    let degital = Object.keys(req.body)[0];
+    degital = degital.split(' ').join('+');
+
+    res.setHeader('Content-Type', 'application/json');
+
+    faiApp.models.predict(Clarifai.GENERAL_MODEL, {base64: degital}).then(
+        function(response) {
+            let foods = response.outputs[0].data.concepts;
+            let list = [];
+            for (let i = 1; i < foods.length; i++) {
+                if (foods[i].value < 0.9) continue;
+                list.push({name : foods[i].name});
+            }
+            res.send(JSON.stringify(list));
+        },
+        // Error throw
+        function(err) {
+            console.error("Thers is a bug");
             res.send(JSON.stringify(err));
         });
 });
