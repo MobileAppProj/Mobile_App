@@ -37,22 +37,11 @@ console.log("Successful connect to Database");
 app.use(bodyParser.json({limit: '50mb'}));
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 
-// let text = '{ "code": 0, "err": " ","data": {"Apple": "information", "Orange": "information"}, "string": "Hello World"}';
-// let json = JSON.parse(text);
-//
-// let image = base64Img.base64Sync('/Users/xiaochen/Desktop/Course/49788 Mobile Apps/team/Mobile_App/test.jpg');
-// let degital = image.split(',')[1].toString();
-// degital = base64Img.base64Sync(image).split(',')[1].toString();
-// console.log(degital);
-
 app.post('/photo', function (req, res) {
-    // Use for latter test
-    // image = req.photo;
+
     console.log("There is a new request");
     let degital = Object.keys(req.body)[0];
     degital = degital.split(' ').join('+');
-
-    // console.log(degital);
     res.setHeader('Content-Type', 'application/json');
 
     faiApp.models.predict(Clarifai.GENERAL_MODEL, {base64: degital}).then(
@@ -72,39 +61,12 @@ app.post('/photo', function (req, res) {
                 console.log(results);
                 res.send(JSON.stringify(results));
             });
-            // for (let i = 0; i < foods.length; i++) {
-        //
-        //     let list = [];
-        //     let name = foods[i].name;
-        //     let accuracy = foods[i].value;
-        //     if (accuracy < 0.9) continue;
-        //     let query  = 'SELECT * FROM canguan.restaurants WHERE contents LIKE \'%' + name + '%\';';
-        //
-        //     connection.query(query, function (error, results, field) {
-        //
-        //         if (error) throw error;
-        //         for (let i = 0; i < results.length; i++) {
-        //             if (results[i].length != 0) {
-        //                 list.push(results[i].RowDataPacket);
-        //             }
-        //         }
-        //     });
-        //
-        //     if (list.length != 0) {
-        //         let food = {name : list};
-        //         list_allfood.push(food);
-        //     }
-        // }
-        // let output = {foods : list_allfoods};
-        //
-        // res.send(JSON.stringify(output));
     },
         // Error throw
         function(err) {
             console.error(err);
             res.send(JSON.stringify(err));
         });
-
 });
 
 server.listen(port);
