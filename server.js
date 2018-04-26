@@ -52,11 +52,13 @@ app.post('/photo', function (req, res) {
     faiApp.models.predict(Clarifai.GENERAL_MODEL, {base64: degital}).then(
         function(response) {
             let foods = response.outputs[0].data.concepts;
-            let query = 'SELECT * FROM canguan.restaurants WHERE contents LIKE \'%' + foods[0].name + '%\'';
+            // let query = 'SELECT * FROM canguan.restaurants WHERE contents LIKE \'%' + foods[0].name + '%\'';
+            let query = 'SELECT * FROM canguan.restaurants WHERE find_in_set(' + foods[0].name + ', contents)';
 
             for (let i = 1; i < foods.length; i++) {
                 if (foods[i].value < 0.9) continue;
-                query = query + ' or contents LIKE \'%' + foods[i].name + '%\'';
+                // query = query + ' or contents LIKE \'%' + foods[i].name + '%\'';
+                query = + ' or find_in_set(' + foods[i].name + ', contents)';
             }
             query = query + ";";
             console.log(query);
@@ -85,7 +87,7 @@ app.post('/shopping', function (req, res) {
         function(response) {
             let foods = response.outputs[0].data.concepts;
             let list = [];
-            for (let i = 1; i < foods.length; i++) {
+            for (let i = 0; i < foods.length; i++) {
                 if (foods[i].value < 0.9 || !foodsName.hasOwnProperty(foods[i].name)) continue;
                 list.push({name : foods[i].name});
             }
@@ -95,7 +97,8 @@ app.post('/shopping', function (req, res) {
         // Error throw
         function(err) {
             console.error("Thers is a bug");
-            res.send(JSON.stringify(err));
+            errorobj = [{name : "The photo cannot be recognized"}];
+            res.send(JSON.stringify(errorobj));
         });
 });
 
