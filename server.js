@@ -80,6 +80,7 @@ app.post('/shopping', function (req, res) {
     console.log("There is a new request for shopping list");
     let degital = Object.keys(req.body)[0];
     degital = degital.split(' ').join('+');
+    console.log(degital);
 
     res.setHeader('Content-Type', 'application/json');
 
