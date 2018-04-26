@@ -38,8 +38,8 @@ app.use(bodyParser.json({limit: '50mb'}));
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 
 let foodsName = {beef : true, steak : true, barbecue : true, fillet : true, pork : true, ham : true,
-    bread : true, tomato : true, cheese : true, chicken : true, rice : true, curry : true,
-    sauce : true,
+    bread : true, tomato : true, cheese : true, chicken : true, rice : true, curry : true, shellfish : true,
+    sauce : true, shrimp : true, basil : true, fish : true
 };
 
 app.post('/photo', function (req, res) {
@@ -54,20 +54,20 @@ app.post('/photo', function (req, res) {
     faiApp.models.predict(Clarifai.GENERAL_MODEL, {base64: degital}).then(
         function(response) {
             let foods = response.outputs[0].data.concepts;
-            // let query = 'SELECT * FROM canguan.restaurants WHERE contents LIKE \'%' + foods[0].name + '%\'';
-            let query = 'SELECT * FROM canguan.restaurants WHERE find_in_set(' + foods[0].name + ', contents)';
+            let query = 'SELECT * FROM canguan.restaurants WHERE contents LIKE \'%' + foods[0].name + '%\'';
+            // let query = 'SELECT * FROM canguan.restaurants WHERE find_in_set(\'' + foods[0].name + '\', contents)';
 
             for (let i = 1; i < foods.length; i++) {
                 if (foods[i].value < 0.9) continue;
-                // query = query + ' or contents LIKE \'%' + foods[i].name + '%\'';
-                query = + ' or find_in_set(' + foods[i].name + ', contents)';
+                query = query + ' or contents LIKE \'%' + foods[i].name + '%\'';
+                // query = query + ' or find_in_set(\'' + foods[i].name + '\', contents)';
             }
             query = query + ";";
-            console.log(query);
+            // console.log(query);
 
             connection.query(query, function (error, results, field) {
                 if (error) throw error;
-                console.log(results);
+                // console.log(results);
                 res.send(JSON.stringify(results));
             });
     },
