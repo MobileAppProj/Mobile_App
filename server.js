@@ -37,6 +37,11 @@ console.log("Successful connect to Database");
 app.use(bodyParser.json({limit: '50mb'}));
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 
+let foodsName = {beef : true, steak : true, barbecue : true, fillet : true, pork : true, ham : true,
+    bread : true, tomato : true, cheese : true, chicken : true, rice : true, curry : true,
+    sauce : true,
+};
+
 app.post('/photo', function (req, res) {
 
     console.log("There is a new request for photo");
@@ -70,7 +75,6 @@ app.post('/photo', function (req, res) {
 });
 
 app.post('/shopping', function (req, res) {
-
     console.log("There is a new request for shopping list");
     let degital = Object.keys(req.body)[0];
     degital = degital.split(' ').join('+');
@@ -82,9 +86,10 @@ app.post('/shopping', function (req, res) {
             let foods = response.outputs[0].data.concepts;
             let list = [];
             for (let i = 1; i < foods.length; i++) {
-                if (foods[i].value < 0.9) continue;
+                if (foods[i].value < 0.9 || !foodsName.hasOwnProperty(foods[i].name)) continue;
                 list.push({name : foods[i].name});
             }
+            console.log(JSON.stringify(list));
             res.send(JSON.stringify(list));
         },
         // Error throw
