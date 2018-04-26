@@ -45,8 +45,10 @@ let foodsName = {beef : true, steak : true, barbecue : true, fillet : true, pork
 app.post('/photo', function (req, res) {
 
     console.log("There is a new request for photo");
-    let degital = Object.keys(req.body)[0];
-    degital = degital.split(' ').join('+');
+    // let degital = Object.keys(req.body)[0];
+    // degital = degital.split(' ').join('+');
+    let degital = req.body.image;
+
     res.setHeader('Content-Type', 'application/json');
 
     faiApp.models.predict(Clarifai.GENERAL_MODEL, {base64: degital}).then(
@@ -78,9 +80,8 @@ app.post('/photo', function (req, res) {
 
 app.post('/shopping', function (req, res) {
     console.log("There is a new request for shopping list");
-    let degital = Object.keys(req.body)[0];
-    degital = degital.split(' ').join('+');
-    console.log(degital);
+    let degital = req.body.image;
+    // console.log(degital);
 
     res.setHeader('Content-Type', 'application/json');
 
