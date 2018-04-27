@@ -4,6 +4,7 @@ let bodyParser = require('body-parser');
 let base64Img = require('base64-img');
 let mysql = require('mysql');
 let formidable = require('formidable');
+let shuffle = require('shuffle-array');
 
 let port = 8585;
 let app = express();
@@ -68,7 +69,7 @@ app.post('/photo', function (req, res) {
             connection.query(query, function (error, results, field) {
                 if (error) throw error;
                 // console.log(results);
-                res.send(JSON.stringify(results));
+                res.send(JSON.stringify(shuffle(results)));
             });
     },
         // Error throw
