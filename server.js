@@ -52,7 +52,7 @@ app.post('/photo', function (req, res) {
 
     res.setHeader('Content-Type', 'application/json');
 
-    faiApp.models.predict(Clarifai.GENERAL_MODEL, {base64: degital}).then(
+    faiApp.models.predict(Clarifai.FOOD_MODEL, {base64: degital}).then(
         function(response) {
             let foods = response.outputs[0].data.concepts;
             let query = 'SELECT * FROM canguan.restaurants WHERE contents LIKE \'%' + foods[0].name + '%\'';
@@ -74,8 +74,9 @@ app.post('/photo', function (req, res) {
     },
         // Error throw
         function(err) {
-            console.error(err);
-            res.send(JSON.stringify(err));
+            console.error("Thers is a bug");
+            errorobj = [{name : "The photo cannot be recognized"}];
+            res.send(JSON.stringify(errorobj));
         });
 });
 
@@ -86,16 +87,29 @@ app.post('/shopping', function (req, res) {
 
     res.setHeader('Content-Type', 'application/json');
 
-    faiApp.models.predict(Clarifai.GENERAL_MODEL, {base64: degital}).then(
+    faiApp.models.predict(Clarifai.FOOD_MODEL, {base64: degital}).then(
         function(response) {
             let foods = response.outputs[0].data.concepts;
             let list = [];
+            let query = 'SELECT * FROM canguan.recipes WHERE name LIKE \'%' + foods[0].name + '%\'';
+
+
             for (let i = 0; i < foods.length; i++) {
+                if (i != 0 && foods[i].value > 0.9) query = query + ' or name LIKE \'%' + foods[i].name + '%\'';
                 if (foods[i].value < 0.9 || !foodsName.hasOwnProperty(foods[i].name)) continue;
                 list.push({name : foods[i].name});
             }
-            console.log(JSON.stringify(list));
-            res.send(JSON.stringify(list));
+            query = query + ";";
+
+            connection.query(query, function (error, results, field) {
+                if (error) throw error;
+                out = {ingredients : list, recipes : results};
+                // console.log(out);
+                res.send(JSON.stringify(out));
+            });
+
+            // console.log(JSON.stringify(list));
+            // res.send(JSON.stringify(list));
         },
         // Error throw
         function(err) {
