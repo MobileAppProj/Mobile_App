@@ -96,7 +96,8 @@ app.post('/shopping', function (req, res) {
 
             for (let i = 0; i < foods.length; i++) {
                 if (i != 0 && foods[i].value > 0.9) query = query + ' or name LIKE \'%' + foods[i].name + '%\'';
-                if (foods[i].value < 0.9 || !foodsName.hasOwnProperty(foods[i].name)) continue;
+                // if (foods[i].value < 0.9 || !foodsName.hasOwnProperty(foods[i].name)) continue;
+                if (foods[i].value < 0.9) continue;
                 list.push({name : foods[i].name});
             }
             query = query + ";";
